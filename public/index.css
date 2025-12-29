@@ -1,0 +1,247 @@
+        :root {
+            --bg-color: #0d1117;
+            --accent-gold: #c5a059;
+            --bright-yellow: #f1d32d;
+            --text-white: #e0e0e0;
+        }
+
+        body {
+            color: var(--text-white);
+            font-family: 'Shippori Mincho', serif, "Yu Mincho", "MS PMincho";
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1.6;
+            /* 背景は下層のdivで管理 */
+        }
+
+        /* ヒーローセクション */
+        .hero {
+            width: 100%;
+            max-width: 1200px;
+            padding: 60px 20px;
+            text-align: center;
+            background: radial-gradient(circle at center, #1a1f2b 0%, transparent 70%);
+            position: relative; /* 重なり順の制御 */
+            z-index: 1;
+        }
+
+        .catchphrase {
+            font-size: 1.2rem;
+            letter-spacing: 0.3em;
+            margin-bottom: 40px;
+            color: var(--text-white);
+            opacity: 0.9;
+        }
+
+        .main-logo-area {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        /* ロゴ部分の代用テキストデザイン */
+        .title-gold {
+            font-size: 4rem;
+            font-weight: bold;
+            letter-spacing: 0.1em;
+            background: linear-gradient(to bottom, #f1d32d, #8a6d1d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .sub-title {
+            font-size: 1.5rem;
+            color: var(--accent-gold);
+            margin-top: -10px;
+            letter-spacing: 0.2em;
+        }
+
+        /* 概要セクション */
+        .info-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--accent-gold);
+            padding: 30px;
+            margin: 40px auto;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .info-box h2 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--accent-gold);
+            display: inline-block;
+            padding-bottom: 5px;
+        }
+
+        .info-detail {
+            font-size: 1.1rem;
+            margin: 10px 0;
+        }
+
+        .tag-id {
+            background: var(--accent-gold);
+            color: var(--bg-color);
+            padding: 2px 10px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        /* キャストセクション（仮） */
+        .cast-header {
+            margin-top: 60px;
+            margin-bottom: 20px;
+        }
+
+        .cast-header h2 {
+            font-size: 1.6rem;
+            border-bottom: 2px solid var(--accent-gold);
+            display: inline-block;
+            padding-bottom: 5px;
+        }
+
+        .cast-thumb-list{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            width: 100%;
+            max-width: 800px;
+            margin: 40px auto;
+        }
+
+        .cast-thumb {
+            aspect-ratio: 1 / 1;
+            background: #222;
+            border: 1px solid #444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+
+        footer {
+            position: relative; /* 重なり順の制御 */
+            z-index: 1;
+            margin-top: auto;
+            padding: 40px;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        /* アニメーション */
+        .fade-in {
+            animation: fadeIn 2s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 星空背景 */
+        #star-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            z-index: -10;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 1px;
+            height: 1px;
+            background: transparent;
+            pointer-events: none;
+        }
+
+        #stars1 {
+            width: 1px;
+            height: 1px;
+            z-index: -9;
+            animation: twinkle 5s linear infinite;
+            box-shadow: 1vw 68vh #ffe600, 2vw 23vh #ffe600, 5vw 98vh #ffe600, 7vw 33vh #ffe600, 10vw 56vh #ffe600, 13vw 12vh #ffe600, 16vw 48vh #ffe600, 19vw 91vh #ffe600, 23vw 4vh #ffe600, 27vw 72vh #ffe600, 30vw 39vh #ffe600, 33vw 88vh #ffe600, 37vw 21vh #ffe600, 40vw 62vh #ffe600, 43vw 1vh #ffe600, 47vw 77vh #ffe600, 50vw 29vh #ffe600, 53vw 51vh #ffe600, 57vw 9vh #ffe600, 60vw 84vh #ffe600, 63vw 37vh #ffe600, 67vw 69vh #ffe600, 70vw 14vh #ffe600, 73vw 45vh #ffe600, 77vw 99vh #ffe600, 80vw 2vh #ffe600, 83vw 60vh #ffe600, 87vw 31vh #ffe600, 90vw 75vh #ffe600, 95vw 50vh #ffe600;
+        }
+
+        #stars2 {
+            width: 2px;
+            height: 2px;
+            z-index: -8;
+            animation: twinkle 10s linear infinite -5s;
+            box-shadow: 3vw 19vh #ffe600, 9vw 78vh #ffe600, 14vw 42vh #ffe600, 18vw 8vh #ffe600, 25vw 93vh #ffe600, 31vw 55vh #ffe600, 38vw 15vh #ffe600, 44vw 81vh #ffe600, 51vw 33vh #ffe600, 58vw 66vh #ffe600, 64vw 4vh #ffe600, 69vw 89vh #ffe600, 75vw 28vh #ffe600, 81vw 73vh #ffe600, 86vw 11vh #ffe600, 92vw 58vh #ffe600, 98vw 24vh #ffe600, 4vw 50vh #ffe600, 96vw 50vh #ffe600, 50vw 96vh #ffe600;
+        }
+
+        #stars3 {
+            width: 3px;
+            height: 3px;
+            z-index: -7;
+            animation: twinkle 15s linear infinite -10s;
+            box-shadow: 8vw 5vh #ffe600, 21vw 82vh #ffe600, 35vw 40vh #ffe600, 48vw 95vh #ffe600, 55vw 10vh #ffe600, 66vw 68vh #ffe600, 78vw 22vh #ffe600, 88vw 88vh #ffe600, 97vw 47vh #ffe600, 28vw 63vh #ffe600;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0; }
+            50% { opacity: 0.7; }
+            100% { opacity: 0; }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 0 15px; /* スマートフォンで左右にマージンを追加 */
+            }
+
+            .hero {
+                padding: 40px 10px;
+            }
+
+            .catchphrase {
+                font-size: 1rem;
+                letter-spacing: 0.2em;
+            }
+
+            .title-gold {
+                font-size: 3rem;
+            }
+
+            .sub-title {
+                font-size: 1.2rem;
+            }
+
+            .info-box {
+                padding: 20px;
+                margin: 30px auto;
+            }
+
+            .info-box h2 {
+                font-size: 1.2rem;
+            }
+
+            .info-detail {
+                font-size: 1rem;
+            }
+
+            .cast-header h2 {
+                font-size: 1.4rem;
+            }
+
+            .cast-thumb-list {
+                grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+                gap: 8px;
+                margin: 30px auto;
+            }
+
+            .cast-thumb {
+                font-size: 0.7rem;
+            }
+
+            footer {
+                padding: 30px 15px;
+            }
+        }

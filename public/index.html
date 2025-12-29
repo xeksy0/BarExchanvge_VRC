@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BAR EXCHANGE | VRChat 性別逆転バー</title>
+    <!-- 本サイト用javascriptの読み込み-->
+    <script src="api.js"></script>
+    <!-- 本サイト用スタイルシート -->
+    <link rel="stylesheet" href="index.css">
+
+</head>
+<body>
+    <!-- 星空背景 -->
+    <div id="star-background"></div>
+    <div id="stars1" class="stars"></div>
+    <div id="stars2" class="stars"></div>
+    <div id="stars3" class="stars"></div>
+
+    <!-- メインコンテンツ -->
+    <section class="hero fade-in">
+        <p class="catchphrase">私から貴方へ、俺から君へ、不思議で素敵なひとときを。</p>
+
+        <!-- ロゴエリア -->
+        <div class="main-logo-area">
+            <h1 class="title-gold">BAR<br>EXCHANGE</h1>
+            <div class="sub-title">キャスト性別逆転バー</div>
+        </div>
+
+        <!-- イベント概要 -->
+        <div class="info-box">
+            <h2>System & Schedule</h2>
+            <p class="info-detail">毎週木曜日 22:00 ～ 23:10</p>
+            <p class="info-detail">1ローテ30分、15分で性別逆転</p>
+            <p class="info-detail">グループインスタンスにて開催</p>
+            <p class="info-detail">Group ID:<span class="tag-id">BAREXC.0827</span></p>
+            <p class="info-icon-links">
+                <!-- VRCグループアイコン描画&リンク設定 -->
+                <a href="https://vrchat.com/home/group/grp_6ef244f5-0cdf-476c-8e83-f145ac39fce7" target="_blank" style="color: var(--accent-gold); text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                    <svg width="40" height="40" viewBox="0 0 100 100" style="flex-shrink: 0;">
+                        <circle cx="50" cy="50" r="48" fill="rgba(255, 255, 255, 0.1)" stroke="currentColor" stroke-width="4" />
+                        <g transform="translate(50, 50) scale(0.7) translate(-50, -55)">
+                            <polygon points="50,15 15,85 85,85" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round" />
+                            <circle cx="50" cy="15" r="12" fill="currentColor" />
+                            <circle cx="15" cy="85" r="12" fill="currentColor" />
+                            <circle cx="85" cy="85" r="12" fill="currentColor" />
+                        </g>
+                    </svg>
+                </a>
+                <!-- Twitterアイコン描画&リンク設定 -->
+                <a href="https://twitter.com/BarExchange_VRC" target="_blank" style="color: var(--accent-gold); text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                    <svg width="40" height="40" viewBox="0 0 100 100" style="flex-shrink: 0;">
+                        <circle cx="50" cy="50" r="48" fill="rgba(255, 255, 255, 0.1)" stroke="currentColor" stroke-width="4" />
+                        <g transform="translate(50, 50) scale(2.5) translate(-12, -12)">
+                            <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" fill="currentColor" />
+                        </g>
+                    </svg>
+                </a>
+            </p>
+        </div>
+
+        <!-- キャスト一覧の -->
+        <div class="cast-header">
+            <h2>Cast</h2>
+            <br>(Comming soon!)
+        </div>
+
+        <!-- キャスト一覧 -->
+        <div class="cast-thumb-list" id="cast-list-container">
+            <div id="cast-thumb-loading">キャスト一覧を読み込み中...</div>
+        </div>
+
+    <footer>
+        &copy; 2024 BAR EXCHANGE - VRChat Roleplay Bar
+    </footer>
+
+</body>
+</html>
