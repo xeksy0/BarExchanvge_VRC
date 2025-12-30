@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAST REGISTER - Bar Exchange</title>
+    <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+    <style>
+        /* フォーム専用の追加スタイル */
+        .register-container {
+            width: 100%;
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--accent-gold);
+            backdrop-filter: blur(5px);
+            z-index: 1;
+        }
+
+        .form-title {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--accent-gold);
+            margin-bottom: 8px;
+            letter-spacing: 0.1em;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(13, 17, 23, 0.8);
+            border: 1px solid rgba(197, 160, 89, 0.3);
+            color: var(--text-white);
+            font-family: inherit;
+            border-radius: 0;
+            box-sizing: border-box;
+            transition: border 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--bright-yellow);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            margin-top: 20px;
+            background: linear-gradient(to right, #8a6d1d, #f1d32d, #8a6d1d);
+            background-size: 200% auto;
+            color: var(--bg-color);
+            border: none;
+            font-weight: bold;
+            letter-spacing: 0.2em;
+            cursor: pointer;
+            transition: 0.5s;
+        }
+
+        .submit-btn:hover {
+            background-position: right center;
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #statusMessage {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            padding: 10px;
+            text-align: center;
+            border: 1px solid transparent;
+        }
+    </style>
+</head>
+<body>
+    <div id="star-background">
+        <div id="stars1" class="stars"></div>
+        <div id="stars2" class="stars"></div>
+        <div id="stars3" class="stars"></div>
+    </div>
+
+    <section class="hero fade-in">
+        <div class="main-logo-area">
+            <h1 class="title-gold">Register</h1>
+            <div class="sub-title">キャスト新規登録</div>
+        </div>
+
+        <div class="register-container">
+            <form id="castForm">
+                <div class="form-group">
+                    <label>CAST NAME</label>
+                    <input type="text" id="name" required placeholder="キャスト名を入力">
+                </div>
+                
+                <div class="form-group">
+                    <label>STATUS</label>
+                    <select id="active">
+                        <option value="在籍">在籍</option>
+                        <option value="卒業">卒業</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>VRChat ID</label>
+                    <input type="text" id="vrc_id" placeholder="VRChatでの表示名">
+                </div>
+
+                <div class="form-group">
+                    <label>X (Twitter) ID</label>
+                    <input type="text" id="twitter_id" placeholder="username(@なし)">
+                </div>
+
+                <div class="form-group">
+                    <label>Discord ID</label>
+                    <input type="text" id="discord_id" placeholder="username">
+                </div>
+                
+                <button type="submit" id="submitBtn" class="submit-btn">DATA UPDATE</button>
+            </form>
+            <div id="statusMessage"></div>
+        </div>
+    </section>
+
+    <footer>
+        &copy; Bar Exchange VRC - Management System
+    </footer>
+
+    <script type="module">
+        // 外部JSから関数だけをインポート
+        import { registerNewCast } from "./firebase_api.js";
+
+        const castForm = document.getElementById('castForm');
+        const statusMsg = document.getElementById('statusMessage');
+        const btn = document.getElementById('submitBtn');
+
+        castForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // UIの状態変更
+            btn.disabled = true;
+            btn.innerText = "UPDATING...";
+            statusMsg.innerText = "";
+
+            // フォームからデータを収集
+            const inputData = {
+                name: document.getElementById('name').value,
+                active: document.getElementById('active').value,
+                vrc_id: document.getElementById('vrc_id').value,
+                twitter_id: document.getElementById('twitter_id').value,
+                discord_id: document.getElementById('discord_id').value
+            };
+
+            // JS側の関数を呼び出す（Firebase初期化などは向こうで完結している）
+            const newId = await registerNewCast(inputData);
+
+            if (newId) {
+                statusMsg.style.color = "var(--bright-yellow)";
+                statusMsg.innerText = `SUCCESS: ID ${newId} で登録完了しました。`;
+                castForm.reset();
+            } else {
+                statusMsg.style.color = "#ff4444";
+                statusMsg.innerText = "ERROR: 登録に失敗しました。コンソールを確認してください。";
+            }
+
+            btn.disabled = false;
+            btn.innerText = "DATA UPDATE";
+        });
+    </script>
+</body>
+</html>
