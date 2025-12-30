@@ -18,6 +18,24 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 /**
+ * 全キャストのデータを配列として取得する関数（プロフィールページ用）
+ */
+export async function getCastDataList() {
+    try {
+        const querySnapshot = await getDocs(collection(db, "casts"));
+        const castList = [];
+        querySnapshot.forEach((doc) => {
+            castList.push({ id: doc.id, ...doc.data() });
+        });
+        // ID順に並び替え
+        return castList.sort((a, b) => parseInt(a.id, 10) - parseInt(b.id, 10));
+    } catch (e) {
+        console.error("データ取得エラー:", e);
+        return [];
+    }
+}
+
+/**
  * キャストを新規登録する関数
  */
 export async function registerNewCast(inputData) {
@@ -94,7 +112,7 @@ export async function registerNewCast(inputData) {
 }
 
 /* キャスト一覧を取得してindex.html二表示する関数 */
-export async function fetchCastList(showInactive = false) {
+export async function fetchCastListForIndex(showInactive = false) {
     try {
         const querySnapshot = await getDocs(collection(db, "casts"));
         const container = document.getElementById('cast-list-container');

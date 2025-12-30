@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAST PROFILE - Bar Exchange</title>
+    <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+    <style>
+        /* プロフィールページ専用の追加スタイル */
+        .profile-selection {
+            margin: 40px auto;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        #castSelector {
+            width: 100%;
+            padding: 12px;
+            background: rgba(13, 17, 23, 0.8);
+            border: 1px solid var(--accent-gold);
+            color: var(--text-white);
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .profile-card {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(197, 160, 89, 0.3);
+            backdrop-filter: blur(10px);
+            display: none; /* 初期状態は非表示 */
+        }
+
+        /* 左側：写真エリア */
+        .profile-image-area {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .profile-thumb {
+            width: 100%;
+            aspect-ratio: 9 / 16;
+            background: #222;
+            border: 1px solid var(--accent-gold);
+            overflow: hidden;
+        }
+
+        .profile-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.3s;
+        }
+
+        /* 右側：詳細エリア */
+        .profile-details {
+            flex: 1.5;
+            min-width: 300px;
+            text-align: left;
+        }
+
+        .p-catchphrase {
+            font-size: 1.1rem;
+            color: var(--bright-yellow);
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+
+        .p-name {
+            font-size: 2.5rem;
+            font-weight: bold;
+            border-bottom: 1px solid var(--accent-gold);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+        }
+
+        .p-intro {
+            line-height: 1.8;
+            margin-bottom: 30px;
+            white-space: pre-wrap; /* 改行を維持 */
+        }
+
+        .p-sns-group {
+            border-top: 1px solid rgba(197, 160, 89, 0.2);
+            padding-top: 20px;
+        }
+
+        .sns-item {
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .sns-label {
+            color: var(--accent-gold);
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .profile-card { flex-direction: column; padding: 20px; }
+            .profile-image-area { min-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div id="star-background">
+        <div id="stars1" class="stars"></div>
+        <div id="stars2" class="stars"></div>
+        <div id="stars3" class="stars"></div>
+    </div>
+
+    <section class="hero fade-in">
+        <div class="main-logo-area">
+            <h1 class="title-gold">CAST</h1>
+            <div class="sub-title">キャスト紹介</div>
+        </div>
+
+        <div class="profile-selection">
+            <select id="castSelector">
+                <option value="">キャストを選択してください</option>
+            </select>
+        </div>
+
+        <div id="profileCard" class="profile-card">
+            <div class="profile-image-area">
+                <div class="profile-thumb">
+                    <img id="displayImg" src="" alt="Cast Image">
+                </div>
+            </div>
+            <div class="profile-details">
+                <div id="pCatchphrase" class="p-catchphrase"></div>
+                <div id="pName" class="p-name"></div>
+                <div id="pIntro" class="p-intro"></div>
+                <div class="p-sns-group">
+                    <div class="sns-item"><span class="sns-label">VRChat ID:</span><span id="pVrc"></span></div>
+                    <div class="sns-item"><span class="sns-label">X (Twitter):</span><span id="pX"></span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script type="module">
+        import { getCastDataList } from './firebase_api.js';
+
+        const selector = document.getElementById('castSelector');
+        const card = document.getElementById('profileCard');
+        const displayImg = document.getElementById('displayImg');
+
+        let castMap = {}; // IDをキーにしてデータを保持
+
+        // 初期化：リストを取得してプルダウンを生成
+        async function init() {
+            const casts = await getCastDataList();
+            casts.forEach(cast => {
+                castMap[cast.id] = cast;
+                const opt = document.createElement('option');
+                opt.value = cast.id;
+                opt.textContent = `No.${cast.id} : ${cast.name}`;
+                selector.appendChild(opt);
+            });
+        }
+
+        // プルダウン選択時の処理
+        selector.addEventListener('change', (e) => {
+            const data = castMap[e.target.value];
+            if (data) {
+                // データの流し込み
+                document.getElementById('pCatchphrase').textContent = data.catchphrase || "";
+                document.getElementById('pName').textContent = data.name;
+                document.getElementById('pIntro').textContent = data.self_introduction || "";
+                document.getElementById('pVrc').textContent = data.vrc_id || "---";
+                document.getElementById('pX').textContent = data.twitter_id ? `@${data.twitter_id}` : "---";
+                
+                // 画像のセット
+                const imgF = data.image_url_f || 'https://via.placeholder.com/300x533?text=No+Image';
+                const imgM = data.image_url_m || imgF;
+                
+                displayImg.src = imgF;
+                // マウスオーバーイベントの設定
+                displayImg.onmouseover = () => { displayImg.src = imgM; };
+                displayImg.onmouseout = () => { displayImg.src = imgF; };
+
+                card.style.display = 'flex';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        init();
+    </script>
+</body>
+</html>
