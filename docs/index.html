@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BAR EXCHANGE | VRChat 性別逆転バー</title>
     <!-- 本サイト用javascriptの読み込み-->
-    <script src="json_api.js"></script>
     <!-- 本サイト用スタイルシート -->
     <link rel="stylesheet" href="index.css">
 
@@ -59,16 +58,19 @@
             </p>
         </div>
 
-        <!-- キャスト一覧の -->
+        <!-- キャスト一覧のヘッダ -->
         <div class="cast-header">
             <h2>Cast</h2>
-            <br>(Comming soon!)
         </div>
 
         <!-- キャスト一覧 -->
         <div class="cast-thumb-list" id="cast-list-container">
             <div id="cast-thumb-loading">キャスト一覧を読み込み中...</div>
         </div>
+        <script type="module">
+            import { fetchCastList } from './firebase_api.js';
+            fetchCastList();
+        </script>
 
     <footer>
         &copy; 2024 BAR EXCHANGE - VRChat Roleplay Bar

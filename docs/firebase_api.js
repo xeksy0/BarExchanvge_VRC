@@ -75,3 +75,37 @@ export async function registerNewCast(inputData) {
         return null; // 失敗したらnullを返す
     }
 }
+
+/* キャスト一覧を取得してindex.html二表示する関数 */
+export async function fetchCastList() {
+    try {
+        const querySnapshot = await getDocs(collection(db, "casts"));
+        const container = document.getElementById('cast-list-container');
+        if (!container) {
+            console.error("要素id:cast-list-container が見つかりません");
+            return;
+        }
+        // キャスト一覧をid昇順にソート
+        const sortedDocs = querySnapshot.docs.sort((a, b) => {
+            return parseInt(a.id, 10) - parseInt(b.id, 10);
+        });
+
+        // キャストのサムネ画像一覧を挿入
+        sortedDocs.forEach((doc) => {
+            const cast = doc.data();
+            // キャストのNoと名前に加え、サムネ画像(ファイル名 No{id}_f_thumb.png)も表示
+            // <div class="cast-thumb">No.${doc.id}<br>${cast.name}<br><img src="./cast_images/No${doc.id}_f_thumb.png" alt="No.${doc.id} ${cast.name}"></div>
+            container.insertAdjacentHTML('beforeend', `
+                <div class="cast-thumb"><img src="./cast_images/No${doc.id}_f_thumb.png" alt="No.${doc.id} ${cast.name}"></div>
+            `);
+        });
+        
+        // ローディング表示を削除
+        const loadingElem = document.getElementById('cast-thumb-loading');
+        if (loadingElem) {
+            loadingElem.remove();
+        }
+    } catch (e) {
+        console.error("データの取得に失敗しました", e);
+    }
+}
