@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { uploadToImgBB } from "./imgbb_api.js";
 
 // --- Firebase設定 ---
 const firebaseConfig = {
@@ -33,6 +34,20 @@ export async function registerNewCast(inputData) {
         });
         const newId = (maxId + 1).toString();
 
+        
+        // 2.画像が入力されていればimgbbにアップロードし、urlを取得
+        let image_url_f = "";
+        let image_url_m = "";
+        const image_name_f = `cast-thumb-f-no-${newId}`;
+        const image_name_m = `cast-thumb-m-no-${newId}`;
+        console.log("imagenames:", image_name_f, image_name_m);
+        if (inputData.cast_image_f) {
+            image_url_f = await uploadToImgBB(inputData.cast_image_f, image_name_f);
+        }
+        if (inputData.cast_image_m) {
+            image_url_m = await uploadToImgBB(inputData.cast_image_m, image_name_m);
+        }
+
         // activeフィールドを日本語から値に変換
         let active_status = false;
         if (inputData.active === "在籍") {
@@ -46,26 +61,28 @@ export async function registerNewCast(inputData) {
             active_status = false;
         }
 
-        // 2. Firestoreへの書き込み
+        // 3. Firestoreへの書き込み
         const castRef = doc(db, "casts", newId);
         const firestoreData = {
             name: inputData.name,
             active: active_status,
             vrc_id: inputData.vrc_id,
             twitter_id: inputData.twitter_id,
-            discord_id: inputData.discord_id
+            discord_id: inputData.discord_id,
+            image_url_f: image_url_f,
+            image_url_m: image_url_m,
+            catchphrase: inputData.catchphrase,
+            self_introduction: inputData.self_introduction
         };
         await setDoc(castRef, firestoreData);
 
-        // 3. GASへの送信
-        const gasUrl = "https://script.google.com/macros/s/AKfycbw25S8tOfjC_2HEj0mkEDaCoQGGU3jAd9kWLVWvfKmzescgeaXl37XbCvn_LGvSpp7eeg/exec";
-        const gasData = { id: newId, ...firestoreData };
+        // 4. GASへのアクション要求(キャスト一覧の更新)
+        const gasUrl = "https://script.google.com/macros/s/AKfycbxxpz_VE9j88HfjBa91L1yvRjPo7ruiSbuSsnzUUXAfVqnXF6raD3azvM7TXqB7-YUncg/exec";
 
         // 完了を待たずに送信（バックグラウンド処理）
         fetch(`${gasUrl}?mode=casts`, {
             method: "POST",
-            mode: "no-cors",
-            body: JSON.stringify(gasData)
+            mode: "no-cors"
         });
 
         return newId; // 成功したら新しいIDを返す
@@ -77,7 +94,7 @@ export async function registerNewCast(inputData) {
 }
 
 /* キャスト一覧を取得してindex.html二表示する関数 */
-export async function fetchCastList() {
+export async function fetchCastList(showInactive = false) {
     try {
         const querySnapshot = await getDocs(collection(db, "casts"));
         const container = document.getElementById('cast-list-container');
@@ -93,11 +110,22 @@ export async function fetchCastList() {
         // キャストのサムネ画像一覧を挿入
         sortedDocs.forEach((doc) => {
             const cast = doc.data();
-            // キャストのNoと名前に加え、サムネ画像(ファイル名 No{id}_f_thumb.png)も表示
-            // <div class="cast-thumb">No.${doc.id}<br>${cast.name}<br><img src="./cast_images/No${doc.id}_f_thumb.png" alt="No.${doc.id} ${cast.name}"></div>
-            container.insertAdjacentHTML('beforeend', `
-                <div class="cast-thumb"><img src="./cast_images/No${doc.id}_f_thumb.png" alt="No.${doc.id} ${cast.name}"></div>
+            // キャストの女性画像またはNoと名前を表示する
+            // マウスオーバーすると男性画像に切り替わる
+            if (cast.active || showInactive) {
+                const castElem = document.createElement('div');
+                castElem.className = 'cast-thumb';
+                castElem.innerHTML = `
+                    <img src="${cast.image_url_f || 'https://via.placeholder.com/150?text=No+Image'}" 
+                         alt="${cast.name}"
+                            onmouseover="this.src='${cast.image_url_m || (cast.image_url_f || 'https://via.placeholder.com/150?text=No+Image')}'"
+                            onmouseout="this.src='${cast.image_url_f || 'https://via.placeholder.com/150?text=No+Image'}'">
+                `;
+                container.appendChild(castElem);
+            } else {
+                container.insertAdjacentHTML('beforeend', `<!-- キャストID:${doc.id} ${cast.name} は非表示 -->
             `);
+            }
         });
         
         // ローディング表示を削除

@@ -37,7 +37,7 @@
             letter-spacing: 0.1em;
         }
 
-        input, select {
+        input, select, textarea {
             width: 100%;
             padding: 12px;
             background: rgba(13, 17, 23, 0.8);
@@ -129,6 +129,22 @@
                     <input type="text" id="discord_id" placeholder="username">
                 </div>
                 
+                <div class="form-group">
+                    <label>CAST IMAGE</label>
+                    女性イメージ<input type="file" id="cast_image_f" accept="image/*">
+                    男性イメージ<input type="file" id="cast_image_m" accept="image/*">
+                </div>
+
+                <div class="form-group">
+                    <label>キャッチコピー</label>
+                    <input type="text" id="catchphrase" placeholder="一言キャッチコピー">
+                </div>
+
+                <div class="form-group">
+                    <label>自己紹介</label>
+                    <textarea id="self_introduction" placeholder="自己紹介" rows="5"></textarea>
+                </div>
+
                 <button type="submit" id="submitBtn" class="submit-btn">DATA UPDATE</button>
             </form>
             <div id="statusMessage"></div>
@@ -144,6 +160,12 @@
         import { registerNewCast } from "./firebase_api.js";
 
         const castForm = document.getElementById('castForm');
+        // Enterキーでの送信を防止
+        castForm.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+            }
+        });
         const statusMsg = document.getElementById('statusMessage');
         const btn = document.getElementById('submitBtn');
 
@@ -161,7 +183,11 @@
                 active: document.getElementById('active').value,
                 vrc_id: document.getElementById('vrc_id').value,
                 twitter_id: document.getElementById('twitter_id').value,
-                discord_id: document.getElementById('discord_id').value
+                discord_id: document.getElementById('discord_id').value,
+                cast_image_f: document.getElementById('cast_image_f').files[0] || null,
+                cast_image_m: document.getElementById('cast_image_m').files[0] || null,
+                catchphrase: document.getElementById('catchphrase').value,
+                self_introduction: document.getElementById('self_introduction').value
             };
 
             // JS側の関数を呼び出す（Firebase初期化などは向こうで完結している）
