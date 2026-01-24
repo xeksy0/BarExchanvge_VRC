@@ -52,7 +52,7 @@ export async function registerNewCast(inputData) {
         });
         const newId = (maxId + 1).toString();
 
-        
+
         // 2.画像が入力されていればimgbbにアップロードし、urlを取得
         let image_url_f = "";
         let image_url_m = "";
@@ -111,6 +111,71 @@ export async function registerNewCast(inputData) {
     }
 }
 
+/**
+ * 既存のキャスト情報を更新する関数
+ */
+export async function updateCastData(id, inputData) {
+    try {
+        // 画像更新処理
+        // 新しい画像が指定されていなければ、既存のURL (inputData.existing_image_url_*) を使う想定
+        // または、呼び出し元で imgタグなどから取得して渡してもらう
+
+        let image_url_f = inputData.image_url_f || "";
+        let image_url_m = inputData.image_url_m || "";
+
+        const image_name_f = `cast-thumb-f-no-${id}`;
+        const image_name_m = `cast-thumb-m-no-${id}`;
+
+        if (inputData.cast_image_f) {
+            image_url_f = await uploadToImgBB(inputData.cast_image_f, image_name_f);
+        }
+        if (inputData.cast_image_m) {
+            image_url_m = await uploadToImgBB(inputData.cast_image_m, image_name_m);
+        }
+
+        // activeフィールドを日本語から値に変換
+        let active_status = false;
+        if (inputData.active === "在籍") {
+            active_status = true;
+        } else if (inputData.active === "卒業") {
+            active_status = false;
+        } else {
+            // booleanで渡ってくる可能性も考慮
+            active_status = !!inputData.active;
+        }
+
+        // Firestore更新
+        const castRef = doc(db, "casts", id);
+        const firestoreData = {
+            name: inputData.name,
+            active: active_status,
+            vrc_id: inputData.vrc_id,
+            twitter_id: inputData.twitter_id,
+            discord_id: inputData.discord_id,
+            image_url_f: image_url_f,
+            image_url_m: image_url_m,
+            catchphrase: inputData.catchphrase,
+            self_introduction: inputData.self_introduction
+        };
+
+        // merge: true にすることで、万が一フィールドが足りなくても他を消さない
+        await setDoc(castRef, firestoreData, { merge: true });
+
+        // GASへの通知
+        const gasUrl = "https://script.google.com/macros/s/AKfycbxxpz_VE9j88HfjBa91L1yvRjPo7ruiSbuSsnzUUXAfVqnXF6raD3azvM7TXqB7-YUncg/exec";
+        fetch(`${gasUrl}?mode=casts`, {
+            method: "POST",
+            mode: "no-cors"
+        });
+
+        return true;
+
+    } catch (e) {
+        console.error("更新エラー:", e);
+        return false;
+    }
+}
+
 /* キャスト一覧を取得してindex.html二表示する関数 */
 export async function fetchCastListForIndex(showInactive = false) {
     try {
@@ -145,7 +210,7 @@ export async function fetchCastListForIndex(showInactive = false) {
             `);
             }
         });
-        
+
         // ローディング表示を削除
         const loadingElem = document.getElementById('cast-thumb-loading');
         if (loadingElem) {

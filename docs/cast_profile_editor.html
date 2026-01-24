@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAST PROFILE EDITOR - Bar Exchange</title>
+    <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+    <style>
+        /* フォーム専用の追加スタイル */
+        .register-container {
+            width: 100%;
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--accent-gold);
+            backdrop-filter: blur(5px);
+            z-index: 1;
+        }
+
+        .form-title {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--accent-gold);
+            margin-bottom: 8px;
+            letter-spacing: 0.1em;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(13, 17, 23, 0.8);
+            border: 1px solid rgba(197, 160, 89, 0.3);
+            color: var(--text-white);
+            font-family: inherit;
+            border-radius: 0;
+            box-sizing: border-box;
+            transition: border 0.3s;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--bright-yellow);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            margin-top: 20px;
+            background: linear-gradient(to right, #8a6d1d, #f1d32d, #8a6d1d);
+            background-size: 200% auto;
+            color: var(--bg-color);
+            border: none;
+            font-weight: bold;
+            letter-spacing: 0.2em;
+            cursor: pointer;
+            transition: 0.5s;
+        }
+
+        .submit-btn:hover {
+            background-position: right center;
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #statusMessage {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            padding: 10px;
+            text-align: center;
+            border: 1px solid transparent;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="star-background">
+        <div id="stars1" class="stars"></div>
+        <div id="stars2" class="stars"></div>
+        <div id="stars3" class="stars"></div>
+    </div>
+
+    <section class="hero fade-in">
+        <div class="main-logo-area">
+            <h1 class="title-gold">Profile Editor</h1>
+            <div class="sub-title">キャストプロフィール編集</div>
+        </div>
+
+        <div class="register-container">
+            <form id="castForm">
+                <div class="form-group">
+                    <label>SELECT CAST (EDIT)</label>
+                    <select id="castSelector">
+                        <option value="">-- 新規登録 (New) --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>CAST NAME</label>
+                    <input type="text" id="name" required placeholder="キャスト名を入力">
+                </div>
+
+                <div class="form-group">
+                    <label>STATUS</label>
+                    <select id="active">
+                        <option value="在籍">在籍</option>
+                        <option value="卒業">卒業</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>VRChat ID</label>
+                    <input type="text" id="vrc_id" placeholder="VRChatでの表示名">
+                </div>
+
+                <div class="form-group">
+                    <label>X (Twitter) ID</label>
+                    <input type="text" id="twitter_id" placeholder="username(@なし)">
+                </div>
+
+                <div class="form-group">
+                    <label>Discord ID</label>
+                    <input type="text" id="discord_id" placeholder="username">
+                </div>
+
+                <div class="form-group">
+                    <label>CAST IMAGE</label>
+                    <div style="display:flex; align-items:flex-end; gap:10px; margin-bottom:5px;">
+                    </div>
+                    女性イメージ<input type="file" id="cast_image_f" accept="image/*">
+                    <span>(現在の画像↓)</span>
+                    <img id="preview_f" src=""
+                        style="width:60px; height:60px; object-fit:cover; display:none; border:1px solid #c5a059;">
+                    <div style="display:flex; align-items:flex-end; gap:10px; margin-bottom:5px; margin-top:10px;">
+                    </div>
+                    男性イメージ<input type="file" id="cast_image_m" accept="image/*">
+                    <span>(現在の画像↓)</span>
+                    <img id="preview_m" src=""
+                        style="width:60px; height:60px; object-fit:cover; display:none; border:1px solid #c5a059;">
+                </div>
+
+                <div class="form-group">
+                    <label>キャッチコピー</label>
+                    <input type="text" id="catchphrase" placeholder="一言キャッチコピー">
+                </div>
+
+                <div class="form-group">
+                    <label>自己紹介</label>
+                    <textarea id="self_introduction" placeholder="自己紹介" rows="5"></textarea>
+                </div>
+
+                <button type="submit" id="submitBtn" class="submit-btn">DATA UPDATE</button>
+            </form>
+            <div id="statusMessage"></div>
+        </div>
+    </section>
+
+    <footer>
+        &copy; Bar Exchange VRC - Management System
+    </footer>
+
+    <script type="module">
+        // 外部JSから関数だけをインポート
+        import { registerNewCast, getCastDataList, updateCastData } from "./firebase_api.js";
+
+        const castForm = document.getElementById('castForm');
+        const castSelector = document.getElementById('castSelector');
+        const statusMsg = document.getElementById('statusMessage');
+        const btn = document.getElementById('submitBtn');
+
+        let allCasts = [];
+        let currentEditId = null; // nullなら新規登録、IDがあれば更新
+        let currentImages = { f: "", m: "" }; // 既存画像のURL保持用
+
+        // 初期化：キャスト一覧を取得してselectにセット
+        async function init() {
+            try {
+                // 既存のオプションをクリア（先頭の「新規登録」以外）
+                while (castSelector.options.length > 1) {
+                    castSelector.remove(1);
+                }
+
+                allCasts = await getCastDataList();
+                // 既にID順にソートされているはず
+
+                allCasts.forEach(cast => {
+                    const option = document.createElement('option');
+                    option.value = cast.id;
+                    option.textContent = `No.${cast.id} ${cast.name}`;
+                    castSelector.appendChild(option);
+                });
+
+                // 現在編集中のIDがあれば選択しなおす（更新後のデータ反映のため）
+                if (currentEditId) {
+                    castSelector.value = currentEditId;
+                    // changeイベントは発火しないので手動で呼ぶか、ここで反映ロジックを書くか
+                    // ここでは単に選択状態を戻すだけにする。
+                    // 実際には updateCastData 後は inputData が最新なのでフォームは新しいはずだが
+                    // サーバー側の確定データを取り直したい場合は再度フォームに入れる処理が必要。
+                    // 今回の要件は「全キャストのプロフィールを再取得」なので、
+                    // 取得した allCasts から再度フォームを埋めなおすと確実。
+
+                    const targetCast = allCasts.find(c => c.id === currentEditId);
+                    if (targetCast) {
+                        // フォーム再描画(changeイベントハンドラと同じ処理)
+                        document.getElementById('name').value = targetCast.name || "";
+                        document.getElementById('active').value = targetCast.active ? "在籍" : "卒業";
+                        document.getElementById('vrc_id').value = targetCast.vrc_id || "";
+                        document.getElementById('twitter_id').value = targetCast.twitter_id || "";
+                        document.getElementById('discord_id').value = targetCast.discord_id || "";
+                        document.getElementById('catchphrase').value = targetCast.catchphrase || "";
+                        document.getElementById('self_introduction').value = targetCast.self_introduction || "";
+
+                        const pf = document.getElementById('preview_f');
+                        const pm = document.getElementById('preview_m');
+                        if (targetCast.image_url_f) {
+                            pf.src = targetCast.image_url_f;
+                            pf.style.display = 'block';
+                            currentImages.f = targetCast.image_url_f;
+                        } else {
+                            pf.style.display = 'none';
+                            currentImages.f = "";
+                        }
+                        if (targetCast.image_url_m) {
+                            pm.src = targetCast.image_url_m;
+                            pm.style.display = 'block';
+                            currentImages.m = targetCast.image_url_m;
+                        } else {
+                            pm.style.display = 'none';
+                            currentImages.m = "";
+                        }
+                    }
+                }
+
+            } catch (e) {
+                console.error("Init Error:", e);
+                statusMsg.textContent = "キャスト一覧の取得に失敗しました。";
+            }
+        }
+        init();
+
+        // 選択変更時の処理
+        castSelector.addEventListener('change', (e) => {
+            const selectedId = e.target.value;
+            if (!selectedId) {
+                // 新規モードへリセット
+                currentEditId = null;
+                castForm.reset();
+                // selectもリセットされちゃうので戻す
+                castSelector.value = "";
+
+                btn.innerText = "DATA UPDATE (REGISTER)";
+                document.getElementById('preview_f').style.display = 'none';
+                document.getElementById('preview_m').style.display = 'none';
+                currentImages = { f: "", m: "" };
+                return;
+            }
+
+            // 編集モード
+            currentEditId = selectedId;
+            const targetCast = allCasts.find(c => c.id === selectedId);
+            if (targetCast) {
+                document.getElementById('name').value = targetCast.name || "";
+
+                // activeの値をプルダウンに合わせる
+                // true->在籍, false->卒業
+                document.getElementById('active').value = targetCast.active ? "在籍" : "卒業";
+
+                document.getElementById('vrc_id').value = targetCast.vrc_id || "";
+                document.getElementById('twitter_id').value = targetCast.twitter_id || "";
+                document.getElementById('discord_id').value = targetCast.discord_id || "";
+                document.getElementById('catchphrase').value = targetCast.catchphrase || "";
+                document.getElementById('self_introduction').value = targetCast.self_introduction || "";
+
+                // 画像プレビュー
+                const pf = document.getElementById('preview_f');
+                const pm = document.getElementById('preview_m');
+
+                if (targetCast.image_url_f) {
+                    pf.src = targetCast.image_url_f;
+                    pf.style.display = 'block';
+                    currentImages.f = targetCast.image_url_f;
+                } else {
+                    pf.style.display = 'none';
+                    currentImages.f = "";
+                }
+
+                if (targetCast.image_url_m) {
+                    pm.src = targetCast.image_url_m;
+                    pm.style.display = 'block';
+                    currentImages.m = targetCast.image_url_m;
+                } else {
+                    pm.style.display = 'none';
+                    currentImages.m = "";
+                }
+
+                btn.innerText = "DATA UPDATE (EDIT)";
+                statusMsg.innerText = "";
+            }
+        });
+
+        // Enterキーでの送信を防止
+        castForm.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+            }
+        });
+
+        castForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // UIの状態変更
+            btn.disabled = true;
+            btn.innerText = "UPDATING...";
+            statusMsg.innerText = "";
+
+            // フォームからデータを収集
+            const inputData = {
+                name: document.getElementById('name').value,
+                active: document.getElementById('active').value,
+                vrc_id: document.getElementById('vrc_id').value,
+                twitter_id: document.getElementById('twitter_id').value,
+                discord_id: document.getElementById('discord_id').value,
+                cast_image_f: document.getElementById('cast_image_f').files[0] || null,
+                cast_image_m: document.getElementById('cast_image_m').files[0] || null,
+                catchphrase: document.getElementById('catchphrase').value,
+                self_introduction: document.getElementById('self_introduction').value,
+                // 既存画像のURLも渡す（画像更新がない場合のため）
+                image_url_f: currentImages.f,
+                image_url_m: currentImages.m
+            };
+
+            let result = null;
+
+            if (currentEditId) {
+                // 更新モード
+                result = await updateCastData(currentEditId, inputData);
+                if (result) {
+                    statusMsg.style.color = "var(--bright-yellow)";
+                    statusMsg.innerText = `SUCCESS: ID ${currentEditId} の情報を更新しました。`;
+                    // 更新後、一覧データもリフレッシュしたほうがいいが、簡易的に
+                    await init(); // 再取得して反映
+                } else {
+                    statusMsg.style.color = "#ff4444";
+                    statusMsg.innerText = "ERROR: 更新に失敗しました。";
+                }
+            } else {
+                // 新規登録モード
+                const newId = await registerNewCast(inputData);
+                if (newId) {
+                    statusMsg.style.color = "var(--bright-yellow)";
+                    statusMsg.innerText = `SUCCESS: ID ${newId} で登録完了しました。`;
+                    castForm.reset();
+                    // selectリセット
+                    castSelector.value = "";
+                    // 一覧再取得（新しい人が入ったので）
+                    init();
+                } else {
+                    statusMsg.style.color = "#ff4444";
+                    statusMsg.innerText = "ERROR: 登録に失敗しました。";
+                }
+            }
+
+            btn.disabled = false;
+            btn.innerText = currentEditId ? "DATA UPDATE (EDIT)" : "DATA UPDATE (REGISTER)";
+        });
+    </script>
+</body>
+
+</html>
