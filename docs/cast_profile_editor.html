@@ -316,9 +316,9 @@
             }
         });
 
-        // Enterキーでの送信を防止
+        // Enterキーでの送信を防止 (自己紹介は除外)
         castForm.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
+            if (e.key === 'Enter' && e.target.id !== 'self_introduction') {
                 e.preventDefault();
             }
         });
