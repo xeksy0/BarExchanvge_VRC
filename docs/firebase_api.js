@@ -19,14 +19,21 @@ const db = getFirestore(app);
 
 /**
  * 全キャストのデータを配列として取得する関数（プロフィールページ用）
+ * @param {boolean} excludeInactive - true の場合、卒業済みキャストを除外する（デフォルト: false）
  */
-export async function getCastDataList() {
+export async function getCastDataList(excludeInactive = false) {
     try {
         const querySnapshot = await getDocs(collection(db, "casts"));
-        const castList = [];
+        let castList = [];
         querySnapshot.forEach((doc) => {
             castList.push({ id: doc.id, ...doc.data() });
         });
+        
+        // 卒業済みキャストを除外する場合
+        if (excludeInactive) {
+            castList = castList.filter((cast) => cast.active === true);
+        }
+        
         // ID順に並び替え
         return castList.sort((a, b) => parseInt(a.id, 10) - parseInt(b.id, 10));
     } catch (e) {

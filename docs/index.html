@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
     <link rel="stylesheet" href="index.css">
 
 </head>
+
 <body>
     <!-- 星空背景 -->
     <div id="star-background"></div>
@@ -35,11 +37,14 @@
             <p class="info-detail">Group ID:<span class="tag-id">BAREXC.0827</span></p>
             <p class="info-icon-links">
                 <!-- VRCグループアイコン描画&リンク設定 -->
-                <a href="https://vrchat.com/home/group/grp_6ef244f5-0cdf-476c-8e83-f145ac39fce7" target="_blank" style="color: var(--accent-gold); text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                <a href="https://vrchat.com/home/group/grp_6ef244f5-0cdf-476c-8e83-f145ac39fce7" target="_blank"
+                    style="color: var(--accent-gold); text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
                     <svg width="40" height="40" viewBox="0 0 100 100" style="flex-shrink: 0;">
-                        <circle cx="50" cy="50" r="48" fill="rgba(255, 255, 255, 0.1)" stroke="currentColor" stroke-width="4" />
+                        <circle cx="50" cy="50" r="48" fill="rgba(255, 255, 255, 0.1)" stroke="currentColor"
+                            stroke-width="4" />
                         <g transform="translate(50, 50) scale(0.7) translate(-50, -55)">
-                            <polygon points="50,15 15,85 85,85" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round" />
+                            <polygon points="50,15 15,85 85,85" fill="none" stroke="currentColor" stroke-width="6"
+                                stroke-linejoin="round" />
                             <circle cx="50" cy="15" r="12" fill="currentColor" />
                             <circle cx="15" cy="85" r="12" fill="currentColor" />
                             <circle cx="85" cy="85" r="12" fill="currentColor" />
@@ -47,11 +52,15 @@
                     </svg>
                 </a>
                 <!-- Twitterアイコン描画&リンク設定 -->
-                <a href="https://twitter.com/BarExchange_VRC" target="_blank" style="color: var(--accent-gold); text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                <a href="https://twitter.com/BarExchange_VRC" target="_blank"
+                    style="color: var(--accent-gold); text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
                     <svg width="40" height="40" viewBox="0 0 100 100" style="flex-shrink: 0;">
-                        <circle cx="50" cy="50" r="48" fill="rgba(255, 255, 255, 0.1)" stroke="currentColor" stroke-width="4" />
+                        <circle cx="50" cy="50" r="48" fill="rgba(255, 255, 255, 0.1)" stroke="currentColor"
+                            stroke-width="4" />
                         <g transform="translate(50, 50) scale(2.5) translate(-12, -12)">
-                            <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" fill="currentColor" />
+                            <path
+                                d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"
+                                fill="currentColor" />
                         </g>
                     </svg>
                 </a>
@@ -64,17 +73,75 @@
         </div>
 
         <!-- キャスト一覧 -->
-        <div class="cast-thumb-list" id="cast-list-container">
-            <div id="cast-thumb-loading">キャスト一覧を読み込み中...</div>
+        <div id="castListContainer">
+            <p id="loading-text">データを読み込み中...</p>
         </div>
-        <script type="module">
-            import { fetchCastListForIndex } from './firebase_api.js';
-            fetchCastListForIndex();
-        </script>
+    </section>
+
+    <script type="module">
+        import { getCastDataList } from './firebase_api.js';
+
+        const container = document.getElementById('castListContainer');
+
+        async function init() {
+            try {
+                const casts = await getCastDataList(true);
+
+                // ローディング表示を消去
+                container.innerHTML = '';
+
+                if (casts.length === 0) {
+                    container.textContent = "現在、表示できるキャストはいません。";
+                    return;
+                }
+
+                // 全キャストを順番に作成
+                casts.forEach(data => {
+                    createProfileCard(data);
+                });
+            } catch (e) {
+                console.error("Failed to load cast data", e);
+                container.textContent = "キャストデータの読み込みに失敗しました。";
+            }
+        }
+
+        function createProfileCard(data) {
+            const card = document.createElement('div');
+            card.className = 'profile-card';
+
+            const imgF = data.image_url_f || 'https://via.placeholder.com/300x533?text=No+Image';
+            const imgM = data.image_url_m || imgF;
+
+            card.innerHTML = `
+                <div class="profile-image-area">
+                    <div class="profile-thumb">
+                        <img src="${imgF}" alt="${data.name} Female" title="FemaleAvatar">
+                    </div>
+                    <div class="profile-thumb">
+                        <img src="${imgM}" alt="${data.name} Male" title="MaleAvatar">
+                    </div>
+                </div>
+                <div class="profile-details">
+                    <div class="p-catchphrase">${data.catchphrase || ""}</div>
+                    <div class="p-name">${data.name}</div>
+                    <div class="p-intro">${data.self_introduction || ""}</div>
+                    <div class="p-sns-group">
+                        <div class="sns-item"><span class="sns-label">VRChat ID:</span><span>${data.vrc_id || "---"}</span></div>
+                        <div class="sns-item"><span class="sns-label">X (Twitter):</span><span>${data.twitter_id ? `@${data.twitter_id}` : "---"}</span></div>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(card);
+        }
+
+        init();
+    </script>
 
     <footer>
         &copy; 2024 BAR EXCHANGE - VRChat Roleplay Bar
     </footer>
 
 </body>
+
 </html>
